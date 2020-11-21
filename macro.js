@@ -85,8 +85,36 @@ const handleTwProperty = ({ path, t, state }) => {
   }
 }
 
+const handleTwFunction = (references, state, t) => {
+  const defaultImportReferences = references.default || references.tw || []
+  defaultImportReferences.forEach((path) => {
+    const parent = path.findParent((x) => x.isTaggedTemplateExpression())
+    if (!parent) return
+
+    if (parent.node.quasi.expressions.length > 0) {
+      throw new Error(
+        `Only plain strings can be used with the "tw" tagged template literal.\nEg: tw\`text-black\``
+      )
+    }
+
+    const parsed = parseTte({
+      path: parent,
+      types: t,
+      state,
+    })
+    if (!parsed) return
+
+    const rawClasses = parsed.string
+    const twValue = tw(rawClasses)
+
+    parent.replaceWith(t.stringLiteral(twValue))
+  })
+}
+
 const twMacro = ({ babel: { types: t }, references, state, config }) => {
   const program = state.file.path
+
+  handleTwFunction(references, state, t)
 
   program.traverse({
     JSXAttribute(path) {
@@ -128,6 +156,22 @@ function astify(literal, t) {
         )
       }
   }
+}
+
+function parseTte({ path, types: t, state }) {
+  if (
+    path.node.tag.type !== "Identifier" &&
+    path.node.tag.type !== "MemberExpression" &&
+    path.node.tag.type !== "CallExpression"
+  )
+    return null
+
+  const string = path.get("quasi").evaluate().value
+  const stringLoc = path.get("quasi").node.loc
+
+  path.node.loc = stringLoc
+
+  return { string, path }
 }
 
 module.exports = createMacro(twMacro, { configName: "tw" })

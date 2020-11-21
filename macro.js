@@ -16,7 +16,18 @@ const attributeStringValue = (node) => {
 const handleTwProperty = ({ path, t, state }) => {
   if (path.node.name.name !== "tw") return
 
+  if (!path.node.value) {
+    path.remove()
+    return
+  }
+
   const twValue = attributeStringValue(path.node)
+
+  if (path.node.value.expression && !twValue) {
+    throw new Error(
+      `Only plain strings can be used with the "tw" prop.\nEg: <div tw="text-black" /> or <div tw={"text-black"} />`
+    )
+  }
 
   const jsxPath = path.findParent((p) => p.isJSXOpeningElement())
   const attributes = jsxPath.get("attributes")
@@ -62,13 +73,15 @@ const handleTwProperty = ({ path, t, state }) => {
     }
 
     classNamePath.get("value").replaceWith(classNamesNode)
-  } else {
+  } else if (twValue) {
     const classNames = tw(twValue)
     const classNamesNode = astify(classNames, t)
 
     path.replaceWith(
       t.jsxAttribute(t.jsxIdentifier("className"), classNamesNode)
     )
+  } else {
+    path.remove()
   }
 }
 

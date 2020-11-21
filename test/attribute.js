@@ -17,6 +17,16 @@ pluginTester({
   },
   tests: [
     {
+      title: "Empty attribute",
+      code: `;<div tw />`,
+      output: `;<div />`,
+    },
+    {
+      title: "Empty string",
+      code: `;<div tw="" />`,
+      output: `;<div />`,
+    },
+    {
       title: "String literal",
       code: `;<div tw=" some-class
  some-other-class " />`,
@@ -46,6 +56,11 @@ pluginTester({
       title: "String expression combined with className variable",
       code: `;<div className={someClass} tw={"some-other-class"} />`,
       output: `;<div className={[someClass, "some-other-class"].filter(Boolean).join(" ")} />`,
+    },
+    {
+      title: "String expression combined with className variable",
+      code: `;<div tw={"some-other-class" + "foo"} />`,
+      error: true,
     },
   ].map(addImport),
 })

@@ -27,10 +27,39 @@ const handleTwProperty = ({ path, t, state }) => {
   if (classNameAttributes.length > 0) {
     path.remove()
     const classNamePath = classNameAttributes[0]
-    const classNameValue = attributeStringValue(classNamePath.node)
 
-    const classNames = tw(classNameValue, twValue)
-    const classNamesNode = astify(classNames, t)
+    let classNamesNode
+
+    if (
+      classNamePath.node.value.type === "JSXExpressionContainer" &&
+      classNamePath.node.value.expression.type !== "StringLiteral"
+    ) {
+      const classNameExpression = classNamePath.node.value.expression
+      const twValueNode = astify(twValue, t)
+
+      // className={[className, twValue].filter(Boolean).join(" ")}
+      classNamesNode = t.jsxExpressionContainer(
+        t.callExpression(
+          t.memberExpression(
+            t.callExpression(
+              t.memberExpression(
+                t.arrayExpression([classNameExpression, twValueNode]),
+                t.identifier("filter")
+              ),
+              [t.identifier("Boolean")]
+            ),
+            t.identifier("join")
+          ),
+          [t.stringLiteral(" ")]
+        )
+      )
+    } else {
+      const classNameValue = attributeStringValue(classNamePath.node)
+      const classNames = tw(classNameValue, twValue)
+
+      // className="class-name tw-value"
+      classNamesNode = astify(classNames, t)
+    }
 
     classNamePath.get("value").replaceWith(classNamesNode)
   } else {

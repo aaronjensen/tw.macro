@@ -3,10 +3,20 @@
 const { createMacro } = require("babel-plugin-macros")
 const tw = require("./tw")
 
+const attributeStringValue = (node) => {
+  const nodeValue = node.value
+  const expressionValue =
+    nodeValue.expression &&
+    nodeValue.expression.type === "StringLiteral" &&
+    nodeValue.expression.value
+
+  return expressionValue || nodeValue.value || ""
+}
+
 const handleTwProperty = ({ path, t, state }) => {
   if (path.node.name.name !== "tw") return
 
-  const nodeValue = path.node.value
+  const twValue = attributeStringValue(path.node)
 
   const jsxPath = path.findParent((p) => p.isJSXOpeningElement())
   const attributes = jsxPath.get("attributes")
@@ -14,23 +24,29 @@ const handleTwProperty = ({ path, t, state }) => {
     (p) => p.node.name && p.node.name.name === "className"
   )
 
-  const originalClassNames = nodeValue.value || ""
-  const classNames = tw(originalClassNames)
-  console.log(classNames)
+  if (classNameAttributes.length > 0) {
+    path.remove()
+    const classNamePath = classNameAttributes[0]
+    const classNameValue = attributeStringValue(classNamePath.node)
 
-  const classNamesNode = astify(classNames, t)
+    const classNames = tw(classNameValue, twValue)
+    const classNamesNode = astify(classNames, t)
 
-  path.replaceWith(t.jsxAttribute(t.jsxIdentifier("className"), classNamesNode))
+    classNamePath.get("value").replaceWith(classNamesNode)
+  } else {
+    const classNames = tw(twValue)
+    const classNamesNode = astify(classNames, t)
+
+    path.replaceWith(
+      t.jsxAttribute(t.jsxIdentifier("className"), classNamesNode)
+    )
+  }
 }
 
 const twMacro = ({ babel: { types: t }, references, state, config }) => {
   const program = state.file.path
 
   program.traverse({
-    // ImportDeclaration(path) {
-    //   setStyledIdentifier({ state, path, styledImport })
-    //   setCssIdentifier({ state, path, cssImport })
-    // },
     JSXAttribute(path) {
       handleTwProperty({ path, t, state })
     },

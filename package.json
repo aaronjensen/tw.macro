@@ -1,9 +1,9 @@
 {
   "name": "tw.macro",
   "version": "1.1.0",
-  "main": "macro.js",
   "author": "Aaron Jensen",
   "license": "MIT",
+  "main": "macro.js",
   "types": "macro.d.ts",
   "scripts": {
     "test": "mocha 'test/**/*.js'"
@@ -12,9 +12,13 @@
     "@babel/parser": "^7.12.7",
     "babel-plugin-macros": "^2.8.0"
   },
+  "peerDependencies": {
+    "@types/react": "^17.0.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.12.7",
     "@babel/plugin-syntax-jsx": "^7.12.1",
+    "@types/react": "^17.0.0",
     "assert": "^2.0.0",
     "babel-plugin-tester": "^10.0.0",
     "eslint": "^7.14.0",

@@ -1,3 +1,5 @@
+import "react"
+
 declare const tw: (
   strings: Readonly<TemplateStringsArray>,
   ...values: readonly string[]

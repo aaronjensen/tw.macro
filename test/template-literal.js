@@ -28,9 +28,15 @@ pluginTester({
       output: `"some-class some-other-class"`,
     },
     {
-      title: "String with interpolation",
-      code: `const someOtherClass = "some-other-class"
-tw\`some-class \${someOtherClass}\``,
+      title: "String with evaluable interpolation",
+      code: `const someOtherClass = tw\`some-other-class\`
+;(tw\`some-class \${someOtherClass}\`)`,
+      output: `const someOtherClass = "some-other-class"
+;("some-class some-other-class")`,
+    },
+    {
+      title: "String with non-evaluable interpolation",
+      code: `tw\`some-class \${someOtherClass}\``,
       error: true,
     },
   ].map(addImport),

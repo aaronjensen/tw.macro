@@ -91,18 +91,17 @@ const handleTwFunction = (references, state, t) => {
     const parent = path.findParent((x) => x.isTaggedTemplateExpression())
     if (!parent) return
 
-    if (parent.node.quasi.expressions.length > 0) {
-      throw new Error(
-        `Only plain strings can be used with the "tw" tagged template literal.\nEg: tw\`text-black\``
-      )
-    }
-
     const parsed = parseTte({
       path: parent,
       types: t,
       state,
     })
-    if (!parsed) return
+
+    if (parsed == null) {
+      throw new Error(
+        `Only plain strings can be used with the "tw" tagged template literal.\nEg: tw\`text-black\``
+      )
+    }
 
     const rawClasses = parsed.string
     const twValue = tw(rawClasses)
@@ -167,6 +166,9 @@ function parseTte({ path, types: t, state }) {
     return null
 
   const string = path.get("quasi").evaluate().value
+
+  if (string == null) return
+
   const stringLoc = path.get("quasi").node.loc
 
   path.node.loc = stringLoc

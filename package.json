@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@babel/parser": "^7.12.7",
-    "babel-plugin-macros": "^2.8.0"
+    "babel-plugin-macros": "^2.8.0",
+    "ramda": "^0.27.1"
   },
   "peerDependencies": {
     "@types/react": "^17.0.0"
@@ -20,13 +21,16 @@
     "@babel/plugin-syntax-jsx": "^7.12.1",
     "@types/react": "^17.0.0",
     "assert": "^2.0.0",
+    "autoprefixer": "^10.0.2",
     "babel-plugin-tester": "^10.0.0",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint_d": "^9.1.2",
     "mocha": "^8.2.1",
+    "postcss": "^8.1.9",
     "prettier": "^2.2.0",
-    "react": "^17.0.1"
+    "react": "^17.0.1",
+    "tailwindcss": "^2.0.1"
   }
 }

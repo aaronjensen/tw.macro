@@ -1,8 +1,8 @@
 "use strict"
 
 const { createMacro } = require("babel-plugin-macros")
-const { handleTwProperty } = require("./lib/tw/property")
-const { handleTwFunction } = require("./lib/tw/function")
+const { handleTwProperty } = require("./lib/macro/property")
+const { handleTwFunction } = require("./lib/macro/function")
 
 const twMacro = ({ babel: { types: t }, references, state, config }) => {
   const program = state.file.path
